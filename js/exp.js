@@ -6,12 +6,11 @@ var exp = (function() {
     const settings = {
         effort: ['high', 'low'][Math.floor(Math.random()*2)],
         difficulty: ['easy', 'hard'][Math.floor(Math.random()*2)],
+        nRaces: 30,
         carSize: [40, 90],
         initPos: 50,
         trackWidth: 600,
-        maxBoost: 3,
         basePay: 2.20,
-        nTrials: 20,
         firstTaskName: 'Hole in One',
     };
 
@@ -30,6 +29,7 @@ var exp = (function() {
         effort: settings.effort,
         difficulty: settings.difficulty,
         basePay: settings.basePay,
+        nRaces: settings.nRaces,
     });
 
     console.log(settings.difficulty, settings.effort);
@@ -216,7 +216,7 @@ var exp = (function() {
 
     p.task2 = {
         timeline: [race, outcome],
-        repetitions: 20,
+        repetitions: settings.nRaces,
         on_timeline_start: () => {
             raceNum++;
         }
