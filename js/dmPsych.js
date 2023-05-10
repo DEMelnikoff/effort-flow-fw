@@ -745,7 +745,7 @@ const dmPsych = (function() {
         if (warning) {
           c.font = "bold 25px Arial";
           c.fillStyle = 'red';
-          c.fillText("Please keep your mouse inside the play area.", 75, 350);          
+          c.fillText("Please stay inside the play area.", 75, 350);          
         }
 
         if (intro <= 3) {
