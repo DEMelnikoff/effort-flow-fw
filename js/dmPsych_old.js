@@ -13,6 +13,8 @@ const dmPsych = (function() {
   window.jsPsych = initJsPsych({
     on_finish: () => {
       let boot = jsPsych.data.get().last(1).select('boot').values[0];
+      console.log(fpsAdjust);
+      jsPsych.data.addProperties({fpsAdjust: fpsAdjust});
       if(!boot) {
         document.body.innerHTML = 
         `<div align='center' style="margin: 10%">
@@ -33,7 +35,7 @@ const dmPsych = (function() {
   obj.filename = `${subject_id}.csv`;
 
   // define completion code for Prolific
-  const completionCode = "C1ACNNE6";
+  const completionCode = "CB1K8YPV";
 
   // track fps
   let frames = 0, tic = performance.now(), fpsAdjust;
@@ -42,7 +44,6 @@ const dmPsych = (function() {
       frames++;
       if(frames == 120) { 
           fpsAdjust = (performance.now() - tic) / 2000;
-          jsPsych.data.addProperties({fpsAdjust: fpsAdjust});
           frames = 0;
           tic = performance.now();
       };
@@ -102,8 +103,8 @@ const dmPsych = (function() {
       };
       for (let n = 0; n < maxSparks; n++) {
         let spark = {
-          vx: Math.random() * 5 + .5,
-          vy: Math.random() * 5 + .5,
+          vx: Math.random() * 5 * (fpsAdjust * 2) + .5,
+          vy: Math.random() * 5 * (fpsAdjust * 2) + .5,
           weight: Math.random() * .3 + .03,
           red: Math.floor(Math.random() * 2 + 1),
           green: Math.floor(Math.random() * 2 + 1),
@@ -135,18 +136,18 @@ const dmPsych = (function() {
               let trailAge = firework.age + i;
               let x = firework.x + spark.vx * trailAge;
               let y = firework.y + spark.vy * trailAge + spark.weight * trailAge * spark.weight * trailAge;
-              let fade = i * 10 + firework.age * 2 + 50;
-              let r = Math.floor(spark.red * fade);
-              let g = Math.floor(spark.green * fade);
-              let b = Math.floor(spark.blue * fade);
+              let fade = i * 10 + firework.age * 2 * (2 * fpsAdjust) + 50;
+              let r = Math.floor(spark.red * fade * 1);
+              let g = Math.floor(spark.green * fade * 1);
+              let b = Math.floor(spark.blue * fade * 1);
               ctx.beginPath();
               ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',1)';
               ctx.rect(x, y, 5, 5);
               ctx.fill();
             }
           });
-          firework.age = firework.age + fpsAdjust;
-          if (firework.age > 50 && Math.random() < .05) {
+          firework.age++;
+          if (firework.age > (100 / (2*fpsAdjust)) && Math.random() < .05) {
             resetFirework(firework);
           }
         } else {
@@ -284,7 +285,7 @@ const dmPsych = (function() {
             message = 'You lost Round '+round+'\nRound '+(round + 1)+' will now begin';
             round++;          
           } else {
-            maxFireworks = blockName == 'practice' ? 0 : 6;
+            maxFireworks = blockName == 'practice' ? 0 : 5;
             fontSize = [50, 30];
             message = 'You won Round '+round+'\nRound '+(round + 1)+' will now begin';
             round++;          
@@ -304,7 +305,7 @@ const dmPsych = (function() {
             round++;
           } else {
             losses = 0;
-            maxFireworks = blockName == 'practice' ? 0 : 6;
+            maxFireworks = blockName == 'practice' ? 0 : 8;
             fontSize = [50, 30];
             message = 'You won Round '+round+'\nRound '+(round + 1)+' will now begin';
             round++;
@@ -650,23 +651,19 @@ const dmPsych = (function() {
   // function for drawing hole in one game on canvas
   obj.holeInOne = (function () {
 
-    let game = {};
+    var game = {};
 
     // import methods from matter.js and define physics engine
-    let { Engine, Render, Vertices, Composite, World, Bodies, Events, Mouse, MouseConstraint } = Matter;
-    let engine = Engine.create();
-
-
+    var { Engine, Render, Vertices, Composite, World, Bodies, Events, Mouse, MouseConstraint } = Matter;
+    var engine = Engine.create();
 
     // temporary data
-    let ballXtrial = [0];   // ball's X coordinates on current trial
-    let ballYtrial = [0];   // ball's Y coordinate on current trial
-    let endTrial = false; // flag whether the current trial is complete
-    let firing = false;   // flag whether the slingshot was fired
-    let inTheHole = false;  // flag whether the ball went through the hold
-    let intro = 0;        // use to determine which instructions to display during introduction
-    let warning = false;  // warn user to stay in play area
-    let dragging = false; // true when user is drawing sling
+    var ballXtrial = [0];   // ball's X coordinates on current trial
+    var ballYtrial = [0];   // ball's Y coordinate on current trial
+    var endTrial = false; // flag whether the current trial is complete
+    var firing = false;   // flag whether the slingshot was fired
+    var inTheHole = false;  // flag whether the ball went through the hold
+    var intro = 0;        // use to determine which instructions to display during introduction
 
     // data to save
     game.data = {
@@ -710,15 +707,37 @@ const dmPsych = (function() {
         }
       };
 
+      // create renderer
+      var render = Render.create({ 
+        engine: engine, 
+        canvas: c, 
+        options: {
+          height: set.canvas.height,
+          width: set.canvas.width,
+          wireframes: false,
+          writeText: text
+        },
+      });
+
       // construct ball
       function Ball() {           
-        this.body = Bodies.circle(set.ball.x, set.ball.y, set.ball.rad, { frictionAir: set.ball.fric });
+        this.body = Bodies.circle(set.ball.x, set.ball.y, set.ball.rad, { 
+          frictionAir: set.ball.fric,
+          render: {
+            fillStyle: set.ball.col,
+          }
+        });
         World.add(engine.world, this.body);
       };
 
       // construct target
       function Wall(y, tri) {
-        this.body = Bodies.fromVertices(set.wall.x, y, tri, { isStatic: true });
+        this.body = Bodies.fromVertices(set.wall.x, y, tri, {
+          isStatic: true,
+          render: {
+            fillStyle: set.wall.col,
+          }
+        });
         World.add(engine.world, this.body);
       };
 
@@ -734,20 +753,19 @@ const dmPsych = (function() {
 
       // construct mouse
       function makeMouse() {    
-        mouse = Mouse.create(c);
-        mouseConstraint = MouseConstraint.create(engine, { mouse: mouse });
+        mouse = Mouse.create(render.canvas);
+        mouseConstraint = MouseConstraint.create(engine, {
+          mouse: mouse,
+          constraint: {
+            render: {visible: false}
+          }
+        });
         World.add(engine.world, mouseConstraint);
+        render.mouse = mouse;
       };
 
       // construct text
       function text(c) {
-
-        if (warning) {
-          c.font = "bold 25px Arial";
-          c.fillStyle = 'red';
-          c.fillText("Please keep your mouse inside the play area.", 75, 350);          
-        }
-
         if (intro <= 3) {
           c.font = "bold 20px Arial";
           c.fillStyle = 'red';
@@ -781,44 +799,24 @@ const dmPsych = (function() {
       function shootSling() { 
         Events.on(mouseConstraint, 'startdrag', function(e) {
           tracker.ball = ball;
-          dragging = true;
           endTrial = false;
-          if (!warning) {
-            intro++;
-          } else {
-            warning = false;
-          };
+          intro++;
         });
         Events.on(mouseConstraint, 'enddrag', function(e) {
-          if(e.body === ball) {
-            firing = true;
-            dragging = false;
-          };
+          if(e.body === ball) firing = true;
         });
         Events.on(engine, 'beforeUpdate', function() {
           var xDelta = Math.abs(ball.position.x-set.ball.x);
           var yDelta = Math.abs(ball.position.y-set.ball.y);
           if(firing && xDelta < (set.ball.rad*2) && yDelta < (set.ball.rad*2)) {
             sling.bodyB = null;
+            sling.pointB.x = set.ball.x;
+            sling.pointB.y = set.ball.y;
             firing = false;
             intro++;
           };
         });
       };
-
-      c.addEventListener("mouseleave", () => {
-        // reset sling if player leaves canvas
-        if (dragging & !warning) {
-          warning = true;
-          World.remove(engine.world, ball)
-          ball = new Ball().body;
-          sling.bodyB = ball;
-          makeMouse();
-          shootSling();
-          trackBall();
-          recordData();
-        }
-      });
 
       // track location of ball
       function trackBall() {    
@@ -861,6 +859,8 @@ const dmPsych = (function() {
 
             // replace ball
             ball = new Ball().body;
+            sling.pointB.x = null;
+            sling.pointB.y = null;
             sling.bodyB = ball;
           };
         })

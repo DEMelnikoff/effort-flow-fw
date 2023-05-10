@@ -2,10 +2,14 @@ var exp = (function() {
 
     let p = {};
 
+    let effort_url = jsPsych.data.getURLVariable("effort");
+    let difficulty_url = jsPsych.data.getURLVariable("difficulty");
+
+
     // randomly assign to conditions and save settings
     const settings = {
-        effort: ['high', 'low'][Math.floor(Math.random()*2)],
-        difficulty: ['easy', 'hard'][Math.floor(Math.random()*2)],
+        effort: effort_url ? effort_url : ['high', 'low'][Math.floor(Math.random()*2)],
+        difficulty: difficulty_url ? difficulty_url : ['easy', 'hard'][Math.floor(Math.random()*2)],
         nRaces: 30,
         carSize: [40, 90],
         initPos: 50,
@@ -243,18 +247,30 @@ var exp = (function() {
         <p>During ${name}, to what extent did you feel immersed and engaged in what you were doing?<br>
         Report the degree to which you felt immersed and engaged by answering the following questions.</p></div>`;
         this.questions = [
-            {prompt: `During ${name}, to what extent did you feel <strong>absorbed</strong> in what you were doing?`,
-            name: `absorbed`,
-            labels: zeroToExtremely},
-            {prompt: `During ${name}, to what extent did you feel <strong>immersed</strong> in what you were doing?`,
-            name: `immersed`,
-            labels: zeroToExtremely},
-            {prompt: `During ${name}, to what extent did you feel <strong>engaged</strong> in what you were doing?`,
-            name: `engaged`,
-            labels: zeroToExtremely},
-            {prompt: `During ${name}, to what extent did you feel <strong>engrossed</strong> in what you were doing?`,
-            name: `engrossed`,
-            labels: zeroToExtremely},
+            {
+                prompt: `During ${name}, to what extent did you feel <strong>absorbed</strong> in what you were doing?`,
+                name: `absorbed`,
+                labels: zeroToExtremely,
+                required: true,
+            },
+            {
+                prompt: `During ${name}, to what extent did you feel <strong>immersed</strong> in what you were doing?`,
+                name: `immersed`,
+                labels: zeroToExtremely,
+                required: true,
+            },
+            {
+                prompt: `During ${name}, to what extent did you feel <strong>engaged</strong> in what you were doing?`,
+                name: `engaged`,
+                labels: zeroToExtremely,
+                required: true,
+            },
+            {
+                prompt: `During ${name}, to what extent did you feel <strong>engrossed</strong> in what you were doing?`,
+                name: `engrossed`,
+                labels: zeroToExtremely,
+                required: true,
+            },
         ];
         this.randomize_question_order = false;
         this.scale_width = 500;
@@ -273,21 +289,36 @@ var exp = (function() {
         <p>Instead of asking about immersion and engagement, these questions ask about <strong>enjoyment</strong>.<br>
         Report how much you <strong>enjoyed</strong> ${name} by answering the following questions.</p></div>`;
         this.questions = [
-            {prompt: `How much did you <strong>enjoy</strong> playing ${name}?`,
-            name: `enjoyable`,
-            labels: zeroToALot},
-            {prompt: `How much did you <strong>like</strong> playing ${name}?`,
-            name: `like`,
-            labels: zeroToALot},
-            {prompt: `How much did you <strong>dislike</strong> playing ${name}?`,
-            name: `dislike`,
-            labels: zeroToALot},
-            {prompt: `How much <strong>fun</strong> did you have playing ${name}?`,
-            name: `fun`,
-            labels: zeroToALot},
-            {prompt: `How <strong>entertaining</strong> was ${name}?`,
-            name: `entertaining`,
-            labels: zeroToExtremely},
+            {
+                prompt: `How much did you <strong>enjoy</strong> playing ${name}?`,
+                name: `enjoyable`,
+                labels: zeroToALot,
+                required: true,
+            },
+            {
+                prompt: `How much did you <strong>like</strong> playing ${name}?`,
+                name: `like`,
+                labels: zeroToALot,
+                required: true,
+            },
+            {
+                prompt: `How much did you <strong>dislike</strong> playing ${name}?`,
+                name: `dislike`,
+                labels: zeroToALot,
+                required: true,
+            },
+            {
+                prompt: `How much <strong>fun</strong> did you have playing ${name}?`,
+                name: `fun`,
+                labels: zeroToALot,
+                required: true,
+            },
+            {
+                prompt: `How <strong>entertaining</strong> was ${name}?`,
+                name: `entertaining`,
+                labels: zeroToExtremely,
+                required: true,
+            },
         ];
         this.randomize_question_order = false;
         this.scale_width = 500;
@@ -300,9 +331,12 @@ var exp = (function() {
     function MakeEffortQs(name, blockName) {
         this.type = jsPsychSurveyLikert;
         this.questions = [
-            {prompt: `While playing ${name}, how much effort did it feel like you were exerting?`,
-            name: `effort`,
-            labels: zeroToALot},
+            {
+                prompt: `While playing ${name}, how much effort did it feel like you were exerting?`,
+                name: `effort`,
+                labels: zeroToALot,
+                required: true,
+            },
         ];
         this.randomize_question_order = false;
         this.scale_width = 500;
@@ -342,36 +376,66 @@ var exp = (function() {
                     <p>Please answer the following questions as honestly and accurately as possible.</p>
                 </div>`,
             questions: [
-                {prompt: `Pushing myself helps me see the bigger picture.`,
-                name: `meanOfEff_1`,
-                labels: meanOfEffScale},
-                {prompt: `I often don't understand why I am working so hard.`,
-                name: `meanOfEff_2r`,
-                labels: meanOfEffScale},
-                {prompt: `I learn the most about myself when I am trying my hardest.`,
-                name: `meanOfEff_3`,
-                labels: meanOfEffScale},
-                {prompt: `Things make more sense when I can put my all into them.`,
-                name: `meanOfEff_4`,
-                labels: meanOfEffScale},
-                {prompt: `When I work hard, it rarely makes a difference.`,
-                name: `meanOfEff_5r`,
-                labels: meanOfEffScale},
-                {prompt: `When I push myself, what I'm doing feels important.`,
-                name: `meanOfEff_6`,
-                labels: meanOfEffScale},
-                {prompt: `When I push myself, I feel like I'm part of something bigger than me.`,
-                name: `meanOfEff_7`,
-                labels: meanOfEffScale},
-                {prompt: `Doing my best gives me a clear purpose in life.`,
-                name: `meanOfEff_8`,
-                labels: meanOfEffScale},
-                {prompt: `When I try my hardest, my life has meaning.`,
-                name: `meanOfEff_9`,
-                labels: meanOfEffScale},
-                {prompt: `When I exert myself, I feel connected to my ideal life.`,
-                name: `meanOfEff_10`,
-                labels: meanOfEffScale},
+                {
+                    prompt: `Pushing myself helps me see the bigger picture.`,
+                    name: `meanOfEff_1`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `I often don't understand why I am working so hard.`,
+                    name: `meanOfEff_2r`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `I learn the most about myself when I am trying my hardest.`,
+                    name: `meanOfEff_3`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `Things make more sense when I can put my all into them.`,
+                    name: `meanOfEff_4`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `When I work hard, it rarely makes a difference.`,
+                    name: `meanOfEff_5r`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `When I push myself, what I'm doing feels important.`,
+                    name: `meanOfEff_6`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `When I push myself, I feel like I'm part of something bigger than me.`,
+                    name: `meanOfEff_7`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `Doing my best gives me a clear purpose in life.`,
+                    name: `meanOfEff_8`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `When I try my hardest, my life has meaning.`,
+                    name: `meanOfEff_9`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
+                {
+                    prompt: `When I exert myself, I feel connected to my ideal life.`,
+                    name: `meanOfEff_10`,
+                    labels: meanOfEffScale,
+                    required: true,
+                },
             ],
             randomize_question_order: false,
             scale_width: 500,
@@ -391,7 +455,13 @@ var exp = (function() {
 
         const age = {
             type: jsPsychSurveyText,
-            questions: [{prompt: "Age:", name: "age"}],
+            questions: [
+                {
+                    prompt: "Age:", 
+                    name: "age",
+                    required: true,
+                }
+            ],
             on_finish: (data) => {
                 dmPsych.saveSurveyData(data); 
             },
