@@ -70,7 +70,7 @@ var exp = (function() {
                     prompt: `What does it mean for a game to be immersive and engaging?`,
                     name: `defineFlow`,
                     options: [`It means that I enjoyed the game.`, `It means that I won a lot of money by playing the game.`, `It means that the game captured my attention and sucked me in.`],
-                    requires: true,
+                    required: true,
                     horizontal: false,
                 }],
             on_finish: (data) => {
