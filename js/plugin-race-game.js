@@ -233,7 +233,7 @@ var jsPsychRaceGame = (function (jspsych) {
                 perturb = trial.speed * perturbWeights[nPerturb] * 2 * win;
                 if (nPerturb == 1) { perturb = perturb + (theirSpeed/2) };
                 nPerturb++;
-                console.log(pWin, win, perturbWeights);
+                console.log(pWin, win);
               };
             };
 
